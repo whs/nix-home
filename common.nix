@@ -19,7 +19,7 @@ in {
     pkgs.python3 pkgs.poetry
     pkgs.kubectl
     pkgs.go-jsonnet
-    /*pkgs.awscli2*/ pkgs.ssm-session-manager-plugin
+    pkgs.awscli2 pkgs.ssm-session-manager-plugin
     pkgs.google-cloud-sdk
     pkgs.ripgrep
     pkgs.nixd # For completion of Nix files
@@ -123,7 +123,7 @@ madoka.whs.in.th ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbTZqaWSJ7PbIAn+j9Ym7x1DB
     matchBlocks = {
       "i-* mi-*" = {
         # https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-enable-ssh-connections.html
-        #proxyCommand = "${pkgs.dash}/bin/dash -c \"${pkgs.awscli2}/bin/aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"";
+        proxyCommand = "${pkgs.dash}/bin/dash -c \"${pkgs.awscli2}/bin/aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"";
       };
     };
     userKnownHostsFile = "~/.ssh/known_hosts ~/.ssh/known_hosts.home-manager";
