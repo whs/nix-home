@@ -65,10 +65,6 @@ madoka.whs.in.th ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbTZqaWSJ7PbIAn+j9Ym7x1DB
     ssm-ssh = "aws ssm start-session --target";
   };
 
-  # Allow using on non-NixOS
-  # Put this in per-host file!
-  ## targets.genericLinux.enable = true;
-
   programs.home-manager.enable = true;
   programs.direnv.enable = true;
   programs.direnv.nix-direnv.enable = true;
@@ -91,7 +87,7 @@ madoka.whs.in.th ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbTZqaWSJ7PbIAn+j9Ym7x1DB
       ];
     };
 
-    initExtra = ''
+    initContent = ''
       setopt promptsubst
     '';
   };
