@@ -14,17 +14,18 @@ let
     in lib.splitString "\n" (builtins.readFile "${gitignore}/${filename}");
 in {
   home.packages = [
-    pkgs.nodejs
+    pkgs.nodejs pkgs.pnpm
     pkgs.go
-    pkgs.python3 pkgs.poetry
+    pkgs.python3 pkgs.uv
     pkgs.kubectl
     pkgs.go-jsonnet
     pkgs.awscli2 pkgs.ssm-session-manager-plugin
     pkgs.google-cloud-sdk
-    pkgs.ripgrep
-    pkgs.nixd # For completion of Nix files
+    pkgs.jq pkgs.libqalculate pkgs.ripgrep
     pkgs.ansible
-    pkgs.git-crypt
+    pkgs.git-crypt pkgs.git-town
+    pkgs.mise pkgs.watchexec
+    pkgs.bind # For dig
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -56,6 +57,7 @@ madoka.whs.in.th ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbTZqaWSJ7PbIAn+j9Ym7x1DB
   };
 
   home.sessionPath = [
+    "$HOME/bin"
     "$HOME/go/bin"
   ];
 
@@ -93,15 +95,16 @@ madoka.whs.in.th ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbTZqaWSJ7PbIAn+j9Ym7x1DB
   };
   programs.git = {
     enable = true;
-    difftastic.enable = true;
-    userName = "Manatsawin Hanmongkolchai";
-    userEmail = "git@whs.in.th";
     ignores = githubGitignore "Global/Ansible.gitignore"
       ++ githubGitignore "Global/JetBrains.gitignore"
       ++ githubGitignore "Global/macOS.gitignore"
       ++ githubGitignore "Global/VisualStudioCode.gitignore"
       ++ [ ".direnv" ".envrc" ];
-    extraConfig = {
+    settings = {
+      user = {
+        name = "Manatsawin Hanmongkolchai";
+        email = "git@whs.in.th";
+      };
       init = {
         defaultBranch = "master";
       };
@@ -110,22 +113,39 @@ madoka.whs.in.th ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDbTZqaWSJ7PbIAn+j9Ym7x1DB
           insteadOf = "https://github.com";
         };
       };
+      git-town = {
+        sync-feature-strategy = "rebase";
+      };
+      rerere = {
+        enabled = true;
+      };
     };
   };
+
+  programs.difftastic = {
+    enable = true;
+    git.enable = true;
+  };
+
   programs.ssh = {
     enable = true;
     package = null; # Don't install ssh
-    serverAliveInterval = 60;
+    enableDefaultConfig = false;
     matchBlocks = {
+      "*" = {
+        serverAliveInterval = 60;
+        userKnownHostsFile = "~/.ssh/known_hosts ~/.ssh/known_hosts.home-manager";
+      };
       "i-* mi-*" = {
         # https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-enable-ssh-connections.html
         proxyCommand = "${pkgs.dash}/bin/dash -c \"${pkgs.awscli2}/bin/aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'\"";
       };
     };
-    userKnownHostsFile = "~/.ssh/known_hosts ~/.ssh/known_hosts.home-manager";
     extraConfig = ''
 # Use SSHFP
 VerifyHostKeyDNS ask
     '';
   };
+
+  programs.k9s.enable = true;
 }
